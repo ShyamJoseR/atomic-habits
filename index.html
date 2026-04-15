@@ -43,7 +43,25 @@
             background: #cbd5e1;
             border-radius: 12px;
             padding: 40px;
+            position: relative; /* Added for the floating zoom panel */
         }
+
+        /* ZOOM PANEL (Added) */
+        .zoom-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+        .zoom-panel label { margin: 0; font-size: 13px; color: #334155; }
+        .zoom-panel input[type="range"] { width: 120px; cursor: pointer; }
 
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #475569; }
@@ -71,6 +89,7 @@
             flex-shrink: 0;
             transform: scale(0.5); /* Scaled down for UI preview */
             transform-origin: center;
+            transition: transform 0.1s ease; /* Added for smooth zooming */
         }
 
         .sheet-header { text-align: left; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
@@ -90,7 +109,7 @@
         .tracker-cell { cursor: pointer; }
         .tracker-cell.checked { background-color: #22c55e !important; }
 
-        /* THEMES */
+        /* EXISTING THEMES */
         .theme-pastel { background: #fffaf0 !important; color: #4a3728; border: none; }
         .theme-pastel .sheet-header { border-bottom-color: #fed7aa; }
         .theme-pastel .habit-table td, .theme-pastel .habit-table th { border-color: #fed7aa; border-radius: 4px; }
@@ -104,6 +123,28 @@
         .theme-midnight { background: #ffffff !important; }
         .theme-midnight .habit-table th { background: #1e293b; color: white; }
         .theme-midnight .name-col { background: #f1f5f9; }
+
+        /* NEW CURVED THEMES (Added) */
+        .theme-ocean { background: #f0f9ff !important; color: #0284c7; }
+        .theme-ocean .sheet-header { border-bottom-color: #bae6fd; }
+        .theme-ocean .habit-table { border-spacing: 4px; border-collapse: separate; }
+        .theme-ocean .habit-table td, .theme-ocean .habit-table th { border: none; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .theme-ocean .habit-table th { background: #bae6fd; color: #0369a1; }
+        .theme-ocean .tracker-cell.checked { background-color: #38bdf8 !important; color: white; }
+
+        .theme-berry { background: #fdf2f8 !important; color: #9d174d; }
+        .theme-berry .sheet-header { border-bottom-color: #fbcfe8; }
+        .theme-berry .habit-table { border-spacing: 3px; border-collapse: separate; }
+        .theme-berry .habit-table td, .theme-berry .habit-table th { border: 2px solid #fbcfe8; background: #ffffff; border-radius: 12px; } /* Heavy rounded borders */
+        .theme-berry .habit-table th { background: #fce7f3; }
+        .theme-berry .tracker-cell.checked { background-color: #f43f5e !important; border-color: #f43f5e; color: white; }
+
+        .theme-forest { background: #fefce8 !important; color: #3f6212; }
+        .theme-forest .sheet-header { border-bottom-color: #d9f99d; }
+        .theme-forest .habit-table { border-spacing: 6px; border-collapse: separate; }
+        .theme-forest .habit-table td, .theme-forest .habit-table th { border: none; background: #f7fee7; border-radius: 10px; }
+        .theme-forest .habit-table th { background: #d9f99d; color: #3f6212; }
+        .theme-forest .tracker-cell.checked { background-color: #84cc16 !important; color: white; transform: scale(0.9); border-radius: 50%; } /* Circles when checked */
 
         /* Scale adjustment for display */
         @media screen and (max-width: 1600px) {
@@ -152,6 +193,9 @@
                     <option value="theme-midnight">Sleek Professional</option>
                     <option value="theme-pastel">Warm Sunset (Pastel)</option>
                     <option value="theme-mint">Modern Mint (Rounded)</option>
+                    <option value="theme-ocean">Ocean Wave (Curved)</option>
+                    <option value="theme-berry">Soft Berry (Super Rounded)</option>
+                    <option value="theme-forest">Forest Bubble (Floating/Curved)</option>
                 </select>
             </div>
             <button onclick="downloadPDF()" style="background: #059669;">Download Landscape PDF</button>
@@ -160,6 +204,12 @@
     </div>
 
     <div class="preview-wrapper">
+        <div class="zoom-panel">
+            <label for="preview-zoom">Preview Zoom:</label>
+            <input type="range" id="preview-zoom" min="0.3" max="1.0" step="0.05" value="0.5" oninput="applyZoom(this.value)">
+            <span id="zoom-text" style="font-size: 13px; font-weight: bold; width: 40px;">50%</span>
+        </div>
+
         <div id="a4-sheet" class="theme-midnight">
             <div class="sheet-header">
                 <h1 class="sheet-title" id="d-title">Monthly Habits</h1>
@@ -175,6 +225,12 @@
     <script>
         let habits = [];
         let checkedCells = new Set();
+
+        // ADDED ZOOM FUNCTION
+        function applyZoom(val) {
+            document.getElementById('a4-sheet').style.transform = `scale(${val})`;
+            document.getElementById('zoom-text').innerText = `${Math.round(val * 100)}%`;
+        }
 
         function goToStep2() {
             document.getElementById('step-1').style.display = 'none';
@@ -248,6 +304,12 @@
 
         function downloadPDF() {
             const element = document.getElementById('a4-sheet');
+            
+            // ADDED FIX: Temporarily force scale to 1 to ensure the PDF renders at full A4 size, 
+            // regardless of where the user left the zoom slider.
+            const currentTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
+
             const opt = {
                 margin: 0,
                 filename: 'habit-tracker.pdf',
@@ -255,7 +317,11 @@
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            // Generate PDF and then restore the user's preview zoom setting
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.transform = currentTransform || 'scale(0.5)';
+            });
         }
     </script>
 </body>
