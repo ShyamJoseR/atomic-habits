@@ -3,26 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker Generator</title>
+    <title>Elegant Landscape Habit Tracker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --bg-color: #f4f4f9;
+            --bg-color: #f1f5f9;
             --panel-bg: #ffffff;
-            --text-color: #333;
-            --primary: #4CAF50;
-            --primary-hover: #45a049;
-            --border: #ddd;
+            --primary: #6366f1;
+            --border: #e2e8f0;
         }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -30,426 +24,237 @@
             gap: 20px;
         }
 
-        /* Layout */
+        /* UI Controls */
         .controls {
-            flex: 1;
+            flex: 0 0 350px;
             background: var(--panel-bg);
             padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             overflow-y: auto;
         }
 
         .preview-wrapper {
-            flex: 2;
+            flex: 1;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
-            padding: 20px;
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        h1, h2 {
-            margin-top: 0;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="text"], input[type="number"], select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        button.danger {
-            background-color: #e74c3c;
-            width: auto;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        /* Step Management */
-        #step-2 { display: none; }
-
-        .habit-list-item {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background: #f9f9f9;
-            border: 1px solid var(--border);
-            margin-bottom: 5px;
-            border-radius: 5px;
+            overflow: auto;
+            background: #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
         }
 
-        /* A4 Sheet Preview */
-        #a4-sheet {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            padding: 20mm;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            position: relative;
-        }
-
-        .sheet-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .sheet-title {
-            font-size: 28px;
-            font-weight: bold;
-            margin: 0 0 5px 0;
-        }
-
-        .sheet-subtitle {
-            font-size: 18px;
-            color: #666;
-            margin: 0;
-        }
-
-        /* Habit Table */
-        .habit-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .habit-table th, .habit-table td {
-            border: 1px solid #000;
-            text-align: center;
-            padding: 5px 0;
-            font-size: 12px;
-            height: 30px;
-        }
-
-        .habit-table th.habit-name-col, .habit-table td.habit-name-col {
-            width: 150px;
-            text-align: left;
-            padding-left: 10px;
-            font-weight: bold;
-        }
-
-        /* Custom Checkbox for PDF Rendering */
-        .tracker-cell {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #475569; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
         
-        .tracker-cell.checked {
-            background-color: #4CAF50 !important;
-            color: white;
+        button {
+            background: var(--primary); color: white; border: none; padding: 12px;
+            border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button.danger { background: #ef4444; width: auto; padding: 4px 8px; font-size: 11px; }
+
+        #step-2 { display: none; }
+        .habit-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #e2e8f0; }
+
+        /* LANDSCAPE A4 SHEET */
+        #a4-sheet {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transform: scale(0.5); /* Scaled down for UI preview */
+            transform-origin: center;
         }
 
-        /* Themes */
-        .theme-minimal .habit-table th, .theme-minimal .habit-table td {
-            border: 1px solid #ccc;
-        }
-        .theme-minimal .sheet-title {
-            font-weight: normal;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+        .sheet-header { text-align: left; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .sheet-title { font-size: 32px; margin: 0; }
+        .sheet-date { font-size: 18px; color: #64748b; }
 
-        .theme-bold .habit-table th, .theme-bold .habit-table td {
-            border: 2px solid #000;
+        .habit-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .habit-table th, .habit-table td { 
+            border: 1px solid #000; 
+            text-align: center; 
+            font-size: 12px; 
+            height: 35px;
+            padding: 0;
         }
-        .theme-bold .habit-table th {
-            background-color: #000;
-            color: #fff;
-        }
+        .name-col { width: 180px; text-align: left !important; padding-left: 10px !important; font-weight: bold; }
+        
+        .tracker-cell { cursor: pointer; }
+        .tracker-cell.checked { background-color: #22c55e !important; }
 
-        .theme-playful {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-        }
-        .theme-playful .habit-table th {
-            background-color: #ffeaa7;
+        /* THEMES */
+        .theme-pastel { background: #fffaf0 !important; color: #4a3728; border: none; }
+        .theme-pastel .sheet-header { border-bottom-color: #fed7aa; }
+        .theme-pastel .habit-table td, .theme-pastel .habit-table th { border-color: #fed7aa; border-radius: 4px; }
+        .theme-pastel .habit-table th { background: #ffedd5; }
+
+        .theme-mint { background: #f0fdf4 !important; }
+        .theme-mint .habit-table { border-spacing: 2px; border-collapse: separate; }
+        .theme-mint .habit-table td, .theme-mint .habit-table th { border: none; background: white; border-radius: 5px; }
+        .theme-mint .habit-table th { background: #dcfce7; }
+
+        .theme-midnight { background: #ffffff !important; }
+        .theme-midnight .habit-table th { background: #1e293b; color: white; }
+        .theme-midnight .name-col { background: #f1f5f9; }
+
+        /* Scale adjustment for display */
+        @media screen and (max-width: 1600px) {
+            #a4-sheet { transform: scale(0.4); }
         }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h1>Habit Tracker</h1>
-        
+        <h2>Habit Tracker</h2>
         <div id="step-1">
             <div class="form-group">
-                <label>Heading / Title</label>
-                <input type="text" id="tracker-title" placeholder="e.g., My Awesome Habits" value="Monthly Habit Tracker">
+                <label>Tracker Title</label>
+                <input type="text" id="t-title" value="Monthly Habits">
             </div>
             <div class="form-group">
                 <label>Month</label>
-                <select id="tracker-month">
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
+                <select id="t-month">
+                    <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                    <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Year</label>
-                <input type="number" id="tracker-year" value="2026">
+                <input type="number" id="t-year" value="2026">
             </div>
-            <button onclick="goToStep2()">Next Step &rarr;</button>
+            <button onclick="goToStep2()">Continue &rarr;</button>
         </div>
 
         <div id="step-2">
-            <h2>Add Habits</h2>
-            <div class="form-group" style="display: flex; gap: 10px;">
-                <input type="text" id="new-habit" placeholder="e.g., Drink 2L Water">
-                <button onclick="addHabit()" style="width: auto;">Add</button>
-            </div>
-            
-            <div id="habit-list-container" style="margin-bottom: 20px;"></div>
-
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-
             <div class="form-group">
-                <label>Select Theme</label>
-                <select id="theme-selector" onchange="changeTheme()">
-                    <option value="theme-classic">Classic</option>
-                    <option value="theme-minimal">Minimalist</option>
-                    <option value="theme-bold">Bold & High Contrast</option>
-                    <option value="theme-playful">Playful</option>
+                <label>Add New Habit</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="new-habit" placeholder="e.g. Exercise">
+                    <button onclick="addHabit()" style="width: auto;">+</button>
+                </div>
+            </div>
+            <div id="habit-list"></div>
+            <hr>
+            <div class="form-group">
+                <label>Theme</label>
+                <select id="theme-sel" onchange="updateTheme()">
+                    <option value="theme-midnight">Sleek Professional</option>
+                    <option value="theme-pastel">Warm Sunset (Pastel)</option>
+                    <option value="theme-mint">Modern Mint (Rounded)</option>
                 </select>
             </div>
-            
-            <p style="font-size: 12px; color: #666;">Tip: You can click the squares in the preview to pre-fill them in green before downloading!</p>
-
-            <button onclick="downloadPDF()" style="background-color: #2c3e50;">Download A4 PDF</button>
-            <button onclick="goBack()" style="background-color: transparent; color: #333; margin-top: 10px; border: 1px solid #ccc;">&larr; Back to Setup</button>
+            <button onclick="downloadPDF()" style="background: #059669;">Download Landscape PDF</button>
+            <button onclick="location.reload()" style="background:none; color:#64748b; margin-top:10px; border:1px solid #e2e8f0;">Reset All</button>
         </div>
     </div>
 
     <div class="preview-wrapper">
-        <div id="a4-sheet" class="theme-classic">
+        <div id="a4-sheet" class="theme-midnight">
             <div class="sheet-header">
-                <h1 class="sheet-title" id="display-title">Monthly Habit Tracker</h1>
-                <p class="sheet-subtitle" id="display-date">Month Year</p>
+                <h1 class="sheet-title" id="d-title">Monthly Habits</h1>
+                <span class="sheet-date" id="d-date">January 2026</span>
             </div>
-            
-            <table class="habit-table" id="preview-table">
-                <thead>
-                    <tr id="table-header-row">
-                        </tr>
-                </thead>
-                <tbody id="table-body">
-                    </tbody>
+            <table class="habit-table">
+                <thead><tr id="h-row"></tr></thead>
+                <tbody id="b-rows"></tbody>
             </table>
         </div>
     </div>
 
     <script>
-        let state = {
-            title: '',
-            month: 1,
-            monthName: '',
-            year: 2026,
-            daysInMonth: 31,
-            habits: [],
-            checkedCells: new Set() // Store checked cells to persist across re-renders
-        };
-
-        // Initialize current date
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date();
-            document.getElementById('tracker-month').value = today.getMonth() + 1;
-            document.getElementById('tracker-year').value = today.getFullYear();
-        });
-
-        function getDaysInMonth(month, year) {
-            return new Date(year, month, 0).getDate();
-        }
+        let habits = [];
+        let checkedCells = new Set();
 
         function goToStep2() {
-            state.title = document.getElementById('tracker-title').value || 'Habit Tracker';
-            state.month = parseInt(document.getElementById('tracker-month').value);
-            state.year = parseInt(document.getElementById('tracker-year').value);
-            state.daysInMonth = getDaysInMonth(state.month, state.year);
-            
-            const monthSelect = document.getElementById('tracker-month');
-            state.monthName = monthSelect.options[monthSelect.selectedIndex].text;
-
             document.getElementById('step-1').style.display = 'none';
             document.getElementById('step-2').style.display = 'block';
-
-            updatePreview();
-        }
-
-        function goBack() {
-            document.getElementById('step-2').style.display = 'none';
-            document.getElementById('step-1').style.display = 'block';
+            render();
         }
 
         function addHabit() {
-            const input = document.getElementById('new-habit');
-            const habitName = input.value.trim();
-            
-            if (habitName) {
-                // Ensure habits fit on an A4 (approx 15-20 rows max depending on font)
-                if (state.habits.length >= 20) {
-                    alert("You've reached the maximum number of habits for a single A4 page.");
-                    return;
-                }
-                state.habits.push(habitName);
-                input.value = '';
-                updateHabitList();
-                updatePreview();
+            const val = document.getElementById('new-habit').value;
+            if (val) {
+                habits.push(val);
+                document.getElementById('new-habit').value = '';
+                render();
             }
         }
 
-        function removeHabit(index) {
-            state.habits.splice(index, 1);
-            
-            // Clean up checked status for removed row to prevent misalignment
-            const newChecked = new Set();
-            state.checkedCells.forEach(id => {
-                const parts = id.split('-');
-                if (parseInt(parts[0]) !== index) {
-                    if (parseInt(parts[0]) > index) {
-                        newChecked.add(`${parseInt(parts[0]) - 1}-${parts[1]}`);
-                    } else {
-                        newChecked.add(id);
-                    }
-                }
+        function removeHabit(i) {
+            habits.splice(i, 1);
+            render();
+        }
+
+        function updateTheme() {
+            document.getElementById('a4-sheet').className = document.getElementById('theme-sel').value;
+        }
+
+        function render() {
+            const title = document.getElementById('t-title').value;
+            const month = parseInt(document.getElementById('t-month').value);
+            const year = parseInt(document.getElementById('t-year').value);
+            const days = new Date(year, month, 0).getDate();
+            const monthName = document.getElementById('t-month').options[month-1].text;
+
+            document.getElementById('d-title').innerText = title;
+            document.getElementById('d-date').innerText = `${monthName} ${year}`;
+
+            // Header
+            const hRow = document.getElementById('h-row');
+            hRow.innerHTML = '<th class="name-col">Habit</th>';
+            for(let i=1; i<=days; i++) hRow.innerHTML += `<th>${i}</th>`;
+
+            // List in controls
+            const list = document.getElementById('habit-list');
+            list.innerHTML = '';
+            habits.forEach((h, i) => {
+                list.innerHTML += `<div class="habit-item"><span>${h}</span><button class="danger" onclick="removeHabit(${i})">Delete</button></div>`;
             });
-            state.checkedCells = newChecked;
 
-            updateHabitList();
-            updatePreview();
-        }
-
-        function updateHabitList() {
-            const container = document.getElementById('habit-list-container');
-            container.innerHTML = '';
+            // Table Body
+            const bRows = document.getElementById('b-rows');
+            bRows.innerHTML = '';
+            const displayHabits = habits.length ? habits : ['Your Habit Here'];
             
-            state.habits.forEach((habit, index) => {
-                const div = document.createElement('div');
-                div.className = 'habit-list-item';
-                div.innerHTML = `
-                    <span>${habit}</span>
-                    <button class="danger" onclick="removeHabit(${index})">Delete</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function toggleCell(habitIndex, dayIndex, cellElement) {
-            const id = `${habitIndex}-${dayIndex}`;
-            if (state.checkedCells.has(id)) {
-                state.checkedCells.delete(id);
-                cellElement.classList.remove('checked');
-            } else {
-                state.checkedCells.add(id);
-                cellElement.classList.add('checked');
-            }
-        }
-
-        function changeTheme() {
-            const theme = document.getElementById('theme-selector').value;
-            const sheet = document.getElementById('a4-sheet');
-            sheet.className = theme;
-        }
-
-        function updatePreview() {
-            document.getElementById('display-title').innerText = state.title;
-            document.getElementById('display-date').innerText = `${state.monthName} ${state.year}`;
-
-            // Build Header Row
-            const headerRow = document.getElementById('table-header-row');
-            headerRow.innerHTML = '<th class="habit-name-col">Habits</th>';
-            for (let i = 1; i <= state.daysInMonth; i++) {
-                headerRow.innerHTML += `<th>${i}</th>`;
-            }
-
-            // Build Body Rows
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-
-            // Add placeholder rows if empty to show the layout
-            const rowsToRender = state.habits.length > 0 ? state.habits : ['Sample Habit 1', 'Sample Habit 2', 'Sample Habit 3'];
-
-            rowsToRender.forEach((habit, hIndex) => {
+            displayHabits.forEach((h, hIdx) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="habit-name-col">${habit}</td>`;
-                
-                for (let dIndex = 1; dIndex <= state.daysInMonth; dIndex++) {
+                tr.innerHTML = `<td class="name-col">${h}</td>`;
+                for(let d=1; d<=days; d++) {
                     const td = document.createElement('td');
                     td.className = 'tracker-cell';
-                    
-                    const id = `${hIndex}-${dIndex}`;
-                    if (state.checkedCells.has(id)) {
-                        td.classList.add('checked');
-                    }
-
-                    // Only add click events if these are actual habits, not placeholders
-                    if (state.habits.length > 0) {
-                        td.onclick = () => toggleCell(hIndex, dIndex, td);
-                    }
-                    
+                    const id = `${hIdx}-${d}`;
+                    if(checkedCells.has(id)) td.classList.add('checked');
+                    td.onclick = () => {
+                        if(checkedCells.has(id)) checkedCells.delete(id);
+                        else checkedCells.add(id);
+                        render();
+                    };
                     tr.appendChild(td);
                 }
-                tableBody.appendChild(tr);
+                bRows.appendChild(tr);
             });
         }
 
         function downloadPDF() {
-            if(state.habits.length === 0) {
-                alert("Please add at least one habit before downloading.");
-                return;
-            }
-
             const element = document.getElementById('a4-sheet');
-            
-            // Configuration for html2pdf
             const opt = {
-                margin:       0,
-                filename:     `${state.title.replace(/\s+/g, '-').toLowerCase()}-${state.monthName}.pdf`,
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 0,
+                filename: 'habit-tracker.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
-
-            // Generate and save
             html2pdf().set(opt).from(element).save();
         }
     </script>
