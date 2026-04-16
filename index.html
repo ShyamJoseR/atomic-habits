@@ -43,10 +43,10 @@
             background: #cbd5e1;
             border-radius: 12px;
             padding: 40px;
-            position: relative; /* Added for the floating zoom panel */
+            position: relative;
         }
 
-        /* ZOOM PANEL (Added) */
+        /* ZOOM PANEL */
         .zoom-panel {
             position: absolute;
             top: 20px;
@@ -65,7 +65,7 @@
 
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #475569; }
-        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
         
         button {
             background: var(--primary); color: white; border: none; padding: 12px;
@@ -87,9 +87,9 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            transform: scale(0.5); /* Scaled down for UI preview */
+            transform: scale(0.5); 
             transform-origin: center;
-            transition: transform 0.1s ease; /* Added for smooth zooming */
+            transition: transform 0.1s ease;
         }
 
         .sheet-header { text-align: left; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
@@ -109,7 +109,7 @@
         .tracker-cell { cursor: pointer; }
         .tracker-cell.checked { background-color: #22c55e !important; }
 
-        /* EXISTING THEMES */
+        /* THEMES */
         .theme-pastel { background: #fffaf0 !important; color: #4a3728; border: none; }
         .theme-pastel .sheet-header { border-bottom-color: #fed7aa; }
         .theme-pastel .habit-table td, .theme-pastel .habit-table th { border-color: #fed7aa; border-radius: 4px; }
@@ -124,7 +124,6 @@
         .theme-midnight .habit-table th { background: #1e293b; color: white; }
         .theme-midnight .name-col { background: #f1f5f9; }
 
-        /* NEW CURVED THEMES (Added) */
         .theme-ocean { background: #f0f9ff !important; color: #0284c7; }
         .theme-ocean .sheet-header { border-bottom-color: #bae6fd; }
         .theme-ocean .habit-table { border-spacing: 4px; border-collapse: separate; }
@@ -135,7 +134,7 @@
         .theme-berry { background: #fdf2f8 !important; color: #9d174d; }
         .theme-berry .sheet-header { border-bottom-color: #fbcfe8; }
         .theme-berry .habit-table { border-spacing: 3px; border-collapse: separate; }
-        .theme-berry .habit-table td, .theme-berry .habit-table th { border: 2px solid #fbcfe8; background: #ffffff; border-radius: 12px; } /* Heavy rounded borders */
+        .theme-berry .habit-table td, .theme-berry .habit-table th { border: 2px solid #fbcfe8; background: #ffffff; border-radius: 12px; }
         .theme-berry .habit-table th { background: #fce7f3; }
         .theme-berry .tracker-cell.checked { background-color: #f43f5e !important; border-color: #f43f5e; color: white; }
 
@@ -144,9 +143,8 @@
         .theme-forest .habit-table { border-spacing: 6px; border-collapse: separate; }
         .theme-forest .habit-table td, .theme-forest .habit-table th { border: none; background: #f7fee7; border-radius: 10px; }
         .theme-forest .habit-table th { background: #d9f99d; color: #3f6212; }
-        .theme-forest .tracker-cell.checked { background-color: #84cc16 !important; color: white; transform: scale(0.9); border-radius: 50%; } /* Circles when checked */
+        .theme-forest .tracker-cell.checked { background-color: #84cc16 !important; color: white; transform: scale(0.9); border-radius: 50%; }
 
-        /* Scale adjustment for display */
         @media screen and (max-width: 1600px) {
             #a4-sheet { transform: scale(0.4); }
         }
@@ -174,14 +172,26 @@
                 <label>Year</label>
                 <input type="number" id="t-year" value="2026">
             </div>
-            <button onclick="goToStep2()">Continue &rarr;</button>
+            
+            <button onclick="goToStep2()" style="margin-bottom: 15px;">Continue &rarr;</button>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+            
+            <label style="color: #64748b;">Load Saved Template</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="triggerImport()" style="background: #475569; flex: 1;">Import File</button>
+                <label style="display: flex; align-items: center; gap: 5px; margin: 0; cursor: pointer;">
+                    <input type="checkbox" id="only-habits-radio"> Only Habits
+                </label>
+                <input type="file" id="import-file-input" accept=".json, application/json" style="display:none" onchange="handleImport(event)">
+            </div>
         </div>
 
         <div id="step-2">
             <div class="form-group">
                 <label>Add New Habit</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="new-habit" placeholder="e.g. Exercise">
+                    <input type="text" id="new-habit" placeholder="e.g. Exercise" onkeypress="if(event.key === 'Enter') addHabit()">
                     <button onclick="addHabit()" style="width: auto;">+</button>
                 </div>
             </div>
@@ -198,8 +208,14 @@
                     <option value="theme-forest">Forest Bubble (Floating/Curved)</option>
                 </select>
             </div>
-            <button onclick="downloadPDF()" style="background: #059669;">Download Landscape PDF</button>
-            <button onclick="location.reload()" style="background:none; color:#64748b; margin-top:10px; border:1px solid #e2e8f0;">Reset All</button>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button onclick="downloadPDF()" style="background: #059669;">Download Landscape PDF</button>
+                
+                <button onclick="exportData()" style="background: #3b82f6;">Export Data (.json)</button>
+                
+                <button onclick="location.reload()" style="background:none; color:#64748b; border:1px solid #e2e8f0;">Reset All</button>
+            </div>
         </div>
     </div>
 
@@ -226,10 +242,94 @@
         let habits = [];
         let checkedCells = new Set();
 
-        // ADDED ZOOM FUNCTION
         function applyZoom(val) {
             document.getElementById('a4-sheet').style.transform = `scale(${val})`;
             document.getElementById('zoom-text').innerText = `${Math.round(val * 100)}%`;
+        }
+
+        // --- EXPORT LOGIC ---
+        function exportData() {
+            if(habits.length === 0) {
+                alert("Please add at least one habit before exporting.");
+                return;
+            }
+
+            // Capture the Title, Month, and Year for the JSON export
+            const currentTitle = document.getElementById('t-title').value;
+            const currentMonth = parseInt(document.getElementById('t-month').value);
+            const currentYear = parseInt(document.getElementById('t-year').value);
+
+            const data = {
+                app: "HabitTracker",
+                version: "1.0",
+                title: currentTitle,
+                month: currentMonth,
+                year: currentYear,
+                habits: habits,
+                checkedCells: Array.from(checkedCells)
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Habit-Backup-${Date.now()}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // --- IMPORT LOGIC ---
+        function triggerImport() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const isOnlyHabits = document.getElementById('only-habits-radio').checked;
+
+            // Restrict to JSON formats
+            if (file.name.endsWith('.json') || file.type === "application/json") {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if(data.app !== "HabitTracker") throw new Error("Invalid format");
+                        
+                        habits = data.habits || [];
+                        checkedCells = new Set();
+                        
+                        // Note: title, month, and year from the JSON are intentionally ignored here
+                        // to preserve what the user selected in the UI.
+
+                        if (!isOnlyHabits && data.checkedCells) {
+                            const selectedMonth = parseInt(document.getElementById('t-month').value);
+                            const selectedYear = parseInt(document.getElementById('t-year').value);
+                            const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+                            
+                            data.checkedCells.forEach(cellId => {
+                                const dayPart = parseInt(cellId.split('-')[1]);
+                                if (dayPart <= daysInMonth) {
+                                    checkedCells.add(cellId);
+                                }
+                            });
+                        }
+                        
+                        goToStep2();
+                    } catch (err) {
+                        alert("Error: Invalid or corrupted JSON file. Please select a valid backup generated by this app.");
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Please select a valid .json backup file.");
+            }
+            
+            event.target.value = ""; 
         }
 
         function goToStep2() {
@@ -249,6 +349,19 @@
 
         function removeHabit(i) {
             habits.splice(i, 1);
+            
+            const newChecked = new Set();
+            checkedCells.forEach(id => {
+                const parts = id.split('-');
+                let hIndex = parseInt(parts[0]);
+                let dIndex = parts[1];
+                
+                if (hIndex !== i) {
+                    if (hIndex > i) hIndex--;
+                    newChecked.add(`${hIndex}-${dIndex}`);
+                }
+            });
+            checkedCells = newChecked;
             render();
         }
 
@@ -266,19 +379,16 @@
             document.getElementById('d-title').innerText = title;
             document.getElementById('d-date').innerText = `${monthName} ${year}`;
 
-            // Header
             const hRow = document.getElementById('h-row');
             hRow.innerHTML = '<th class="name-col">Habit</th>';
             for(let i=1; i<=days; i++) hRow.innerHTML += `<th>${i}</th>`;
 
-            // List in controls
             const list = document.getElementById('habit-list');
             list.innerHTML = '';
             habits.forEach((h, i) => {
                 list.innerHTML += `<div class="habit-item"><span>${h}</span><button class="danger" onclick="removeHabit(${i})">Delete</button></div>`;
             });
 
-            // Table Body
             const bRows = document.getElementById('b-rows');
             bRows.innerHTML = '';
             const displayHabits = habits.length ? habits : ['Your Habit Here'];
@@ -292,6 +402,7 @@
                     const id = `${hIdx}-${d}`;
                     if(checkedCells.has(id)) td.classList.add('checked');
                     td.onclick = () => {
+                        if(habits.length === 0) return;
                         if(checkedCells.has(id)) checkedCells.delete(id);
                         else checkedCells.add(id);
                         render();
@@ -305,8 +416,6 @@
         function downloadPDF() {
             const element = document.getElementById('a4-sheet');
             
-            // ADDED FIX: Temporarily force scale to 1 to ensure the PDF renders at full A4 size, 
-            // regardless of where the user left the zoom slider.
             const currentTransform = element.style.transform;
             element.style.transform = 'scale(1)';
 
@@ -318,7 +427,6 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
             
-            // Generate PDF and then restore the user's preview zoom setting
             html2pdf().set(opt).from(element).save().then(() => {
                 element.style.transform = currentTransform || 'scale(0.5)';
             });
